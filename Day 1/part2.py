@@ -1,19 +1,17 @@
 import test_input
 
-digits_as_words = {
-    "zero" : 0,
-    "one" : 1,
-    "two" : 2,
-    "three" : 3,
-    "four" : 4,
-    "five" : 5,
-    "six" : 6,
-    "seven" : 7,
-    "eight" : 8,
-    "nine" : 9
-}
-
 def word_to_digit(word):
+    digits_as_words = {
+        "one" : 1,
+        "two" : 2,
+        "three" : 3,
+        "four" : 4,
+        "five" : 5,
+        "six" : 6,
+        "seven" : 7,
+        "eight" : 8,
+        "nine" : 9
+    } 
     while not word in digits_as_words:
         if len(word) < 3:
             return 0,word
@@ -21,46 +19,34 @@ def word_to_digit(word):
             word = word[1:]
     return digits_as_words[word],word
 
-def update_digits(new_digit, digit_1, digit_2, read_2_digits):
+def update_digits(new_digit, digit_1, digit_2):
     if digit_1 == 0:
         digit_1 = new_digit
     else:
         digit_2 = new_digit
-        read_2_digits = True
-    return digit_1, digit_2, read_2_digits
+    return digit_1, digit_2,
+
+def update_parse_digit(buf, digit_1, digit_2):
+    parsed_digit,parsed_word = word_to_digit(buf)
+    if parsed_digit > 0:
+        digit_1,digit_2 = update_digits(parsed_digit,digit_1,digit_2)
+        buf = parsed_word[1:] # avoids reparsing
+    return buf, digit_1, digit_2
 
 def sum_calibration_values(sinput):
     calibration_val_sum = 0
     lines = sinput.split('\n')
     for line in lines:
-        calibration_digit_1 = 0
-        calibration_digit_2 = 0
-        calibration_digit_str = ""
-        calibration_digit_str_as_number = 0
-        read_2_digits = False
-        parsed_digit_word = ""
-
+        digit_1,digit_2,buf = 0,0,""
         for char in line:
-            calibration_digit_str_as_number,parsed_digit_word = word_to_digit(calibration_digit_str)
-            if calibration_digit_str_as_number > 0:
-                calibration_digit_1,calibration_digit_2,read_2_digits = update_digits(calibration_digit_str_as_number,calibration_digit_1,calibration_digit_2,read_2_digits)
-                calibration_digit_str = parsed_digit_word[1:]
+            buf,digit_1,digit_2 = update_parse_digit(buf,digit_1,digit_2)
             if char.isnumeric():
-                calibration_digit_1,calibration_digit_2,read_2_digits = update_digits(int(char),calibration_digit_1,calibration_digit_2,read_2_digits)
+                digit_1,digit_2 = update_digits(int(char),digit_1,digit_2)
             else: 
-                calibration_digit_str = calibration_digit_str + char
-
-        calibration_digit_str_as_number,parsed_digit_word = word_to_digit(calibration_digit_str)
-        if calibration_digit_str_as_number > 0:
-            calibration_digit_1,calibration_digit_2,read_2_digits = update_digits(calibration_digit_str_as_number,calibration_digit_1,calibration_digit_2,read_2_digits)
-            calibration_digit_str = parsed_digit_word[1:]
-        if not read_2_digits:
-            calibration_digit_2 = calibration_digit_1
-        
-        calibration_val = (int(calibration_digit_1)*10) + int(calibration_digit_2)
-        calibration_val_sum = calibration_val_sum + calibration_val
+                buf = buf + char
+        buf,digit_1,digit_2 = update_parse_digit(buf,digit_1,digit_2)
+        digit_2= digit_1 if digit_2 <= 0 else digit_2
+        calibration_val_sum = calibration_val_sum + (int(digit_1)*10) + int(digit_2)
     return calibration_val_sum
 
-calibration_sum = sum_calibration_values(test_input.full_input)
-
-print(calibration_sum)
+print(sum_calibration_values(test_input.full_input))
