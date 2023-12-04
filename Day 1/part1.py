@@ -1,7 +1,7 @@
 import test_input
 
-def sum_calibration_values(sinput):
-    calibration_val_sum = 0
+def sum_calibration_values(sinput: str)->int:
+    calibration_val_sum:int = 0
     lines = sinput.split('\n')
     for line in lines:
         calibration_digit_1 = 0

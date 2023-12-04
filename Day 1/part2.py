@@ -1,6 +1,6 @@
 import test_input
 
-def word_to_digit(word):
+def word_to_digit(word:str) -> int:
     digits_as_words = {
         "one" : 1,
         "two" : 2,
@@ -19,21 +19,21 @@ def word_to_digit(word):
             word = word[1:]
     return digits_as_words[word],word
 
-def update_digits(new_digit, digit_1, digit_2):
+def update_digits(new_digit:int, digit_1:int, digit_2:int):
     if digit_1 == 0:
         digit_1 = new_digit
     else:
         digit_2 = new_digit
     return digit_1, digit_2,
 
-def update_parse_digit(buf, digit_1, digit_2):
+def update_parse_digit(buf:str, digit_1:int, digit_2:int):
     parsed_digit,parsed_word = word_to_digit(buf)
     if parsed_digit > 0:
         digit_1,digit_2 = update_digits(parsed_digit,digit_1,digit_2)
         buf = parsed_word[1:] # avoids reparsing
     return buf, digit_1, digit_2
 
-def sum_calibration_values(sinput):
+def sum_calibration_values(sinput:str)->int:
     calibration_val_sum = 0
     lines = sinput.split('\n')
     for line in lines:
