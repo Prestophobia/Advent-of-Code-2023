@@ -120,32 +120,37 @@ def sum_part_numbers(parts:list[Part]) -> int:
         sum_numbers = sum_numbers + part.number
     return sum_numbers
 
+def get_parts_connected_to_gear(coord: SchematicCoordinates, gear_candidate_parts: list[Part])->list[Part]:
+    connected_parts: list[Part] = []
+
+    range_min_x,range_min_y = max(0,coord.x - 1),max(0,coord.y - 1)
+    #+2 to make the loops inclusive
+    range_max_x,range_max_y = min(Schematic.dimensions,coord.x + 2),min(Schematic.dimensions,coord.y + 2)
+
+    for candidate in gear_candidate_parts:
+        isConnected = False
+        for candidate_coord in candidate.coords:      
+            for x in range(range_min_x,range_max_x):
+                for y in range(range_min_y,range_max_y):
+                    if candidate_coord.x == x and candidate_coord.y == y:
+                        isConnected = True
+                        break
+                if isConnected:
+                    break
+            if isConnected:
+                    break
+        if isConnected:
+            connected_parts.append(candidate)
+        
+    return connected_parts
+
 def get_gears_from_schematic(schematic: Schematic, gear_candidate_parts: list[Part]) -> list[Gear]:
     local_gears:list[Gear] = []
     for y in range(Schematic.dimensions):
         for x in range(Schematic.dimensions):
             if schematic.grid[x][y] == '*':
                 coord = SchematicCoordinates(x,y)
-                connected_parts: list[Part] = []
-
-                range_min_x,range_min_y = max(0,coord.x - 1),max(0,coord.y - 1)
-                #+2 to make the loops inclusive
-                range_max_x,range_max_y = min(Schematic.dimensions,coord.x + 2),min(Schematic.dimensions,coord.y + 2)
-
-                for candidate in gear_candidate_parts:
-                    isConnected = False
-                    for candidate_coord in candidate.coords:      
-                        for check_x in range(range_min_x,range_max_x):
-                            for check_y in range(range_min_y,range_max_y):
-                                if candidate_coord.x == check_x and candidate_coord.y == check_y:
-                                    isConnected = True
-                                    break
-                            if isConnected:
-                                break
-                        if isConnected:
-                                break
-                    if isConnected:
-                        connected_parts.append(candidate)
+                connected_parts: list[Part] = get_parts_connected_to_gear(coord,gear_candidate_parts)
                 if len(connected_parts) == 2:
                     local_gears.append(Gear(coord,connected_parts))
     return local_gears
